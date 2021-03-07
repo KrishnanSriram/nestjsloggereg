@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { WinstonModule } from 'nest-winston';
 import { AppModule } from './app.module';
 import winston, { format, transports } from 'winston';
+import 'winston-daily-rotate-file';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -16,7 +17,16 @@ async function bootstrap() {
       ),
       transports: [
         new transports.Console({ level: 'debug' }),
-        new transports.File({ filename: 'app.log', level: 'debug' }),
+        new transports.DailyRotateFile({
+          filename: 'app-%DATE%.log',
+          dirname: './logs',
+          level: 'info',
+          handleExceptions: true,
+          json: false,
+          zippedArchive: true,
+          maxSize: '20m',
+          maxFiles: '14d',
+        }),
       ],
     }),
   });
